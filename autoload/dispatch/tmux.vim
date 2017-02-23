@@ -9,6 +9,11 @@ let s:waiting = {}
 let s:make_pane = tempname()
 
 function! dispatch#tmux#handle(request) abort
+  " Cancel any running builds
+  for [pane, request] in items(s:waiting)
+    let command = 'tmux kill-pane -t '.shellescape(pane)
+    call system(command)
+  endfor
   let session = get(g:, 'tmux_session', '')
   if empty($TMUX) && empty(''.session) || !executable('tmux')
     return 0
